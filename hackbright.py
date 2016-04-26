@@ -23,9 +23,9 @@ def get_student_by_github(github):
     QUERY = """
         SELECT first_name, last_name, github
         FROM Students
-        WHERE github = :github
+        WHERE github = :cheesecake
         """
-    db_cursor = db.session.execute(QUERY, {'github': github})
+    db_cursor = db.session.execute(QUERY, {'cheesecake': github})
     row = db_cursor.fetchone()
     print "Student: %s %s\nGithub account: %s" % (row[0], row[1], row[2])
 
@@ -36,12 +36,25 @@ def make_new_student(first_name, last_name, github):
     Given a first name, last name, and GitHub account, add student to the
     database and print a confirmation message.
     """
-    pass
+    QUERY = """INSERT INTO Students VALUES (:first_name, :last_name, :github)"""
+    db_cursor = db.session.execute(QUERY, {'first_name': first_name, 'last_name': last_name, 
+        'github': github})
+    db.session.commit()
+
+    print "Successfully added student: %s %s" % (first_name, last_name)
 
 
 def get_project_by_title(title):
     """Given a project title, print information about the project."""
-    pass
+    QUERY = """
+        SELECT description
+        FROM projects
+        WHERE title = :cheesecake
+        """
+
+    db_cursor = db.session.execute(QUERY, {'cheesecake': title})
+    row = db_cursor.fetchone()
+    print row[0]
 
 
 def get_grade_by_github_title(github, title):
@@ -76,6 +89,10 @@ def handle_input():
             first_name, last_name, github = args   # unpack!
             make_new_student(first_name, last_name, github)
 
+        elif command == "project_description":
+            title = args[0]
+            get_project_by_title(title)
+
         else:
             if command != "quit":
                 print "Invalid Entry. Try again."
@@ -85,6 +102,6 @@ if __name__ == "__main__":
     app = Flask(__name__)
     connect_to_db(app)
 
-    # handle_input()
+    handle_input()
 
     db.session.close()
